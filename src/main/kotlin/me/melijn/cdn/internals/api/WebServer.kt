@@ -49,7 +49,7 @@ class WebServer(container: Container) {
                 val ls = daoManager.imageWrapper.cache[type].await()
                 if (ls.isEmpty()) {
                     call.respondText(
-                        "{ error: 'The supplied type: '$type' has no images' }",
+                        "{ \"error\": \"The supplied type: '$type' has no images\" }",
                         jsonType,
                         HttpStatusCode(418, "I'm a teapot")
                     )
@@ -57,12 +57,12 @@ class WebServer(container: Container) {
                 }
                 val index = Random.nextInt(0, ls.size)
                 val fileName = ls[index]
-                call.respondText("{ url: '$imageCdnUrl$fileName' }", jsonType)
+                call.respondText("{ \"url\": \"$imageCdnUrl$fileName\" }", jsonType)
             }
 
             put("/img/{type}") {
                 if (!authValidationFails(call)) return@put
-                val type = call.parameters["type"] ?: return@put
+                val type = call.parameters["type"]?.toLowerCase() ?: return@put
 
                 val name = Base58.encode(ByteUtils.longToBytes(System.currentTimeMillis()))
 
@@ -98,7 +98,7 @@ class WebServer(container: Container) {
 
                 } ?: return@put
 
-                call.respondText("{ url: '$imageCdnUrl$file' }")
+                call.respondText("{ \"url\": \"$imageCdnUrl$file\" }")
             }
 
             delete("/img/{type}/{filename}") {
@@ -109,7 +109,7 @@ class WebServer(container: Container) {
                 daoManager.imageWrapper.delete(type, filename)
                 val success= File(imageDir, filename).delete()
 
-                call.respondText("{ deleted: '$success' }")
+                call.respondText("{ \"deleted\": \"$success\" }")
             }
         }
     }

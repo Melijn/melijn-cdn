@@ -34,6 +34,7 @@ class ImageWrapper(private val taskManager: TaskManager, private val imageDao: I
         cache.put(image.type, CompletableFuture.completedFuture(ls))
 
         imageDao.insert(image)
+        logger.info("inserted image type: ${image.type}, name: ${image.name}, owner: ${image.ownerId}")
     }
 
     suspend fun delete(type: String, name: String) {
@@ -42,7 +43,7 @@ class ImageWrapper(private val taskManager: TaskManager, private val imageDao: I
         cache.put(type, CompletableFuture.completedFuture(ls))
 
         imageDao.delete(type, name)
-        logger.info("deleted image: $type, $name")
+        logger.info("deleted image type: $type, name: $name")
     }
 }
 
