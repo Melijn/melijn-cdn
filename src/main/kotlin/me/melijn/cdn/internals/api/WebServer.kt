@@ -98,7 +98,7 @@ class WebServer(container: Container) {
 
                 } ?: return@put
 
-                call.respondText("{ \"url\": \"$imageCdnUrl$file\" }")
+                call.respondText("{ \"url\": \"$imageCdnUrl$file\" }", jsonType)
             }
 
             delete("/img/{type}/{filename}") {
@@ -109,7 +109,17 @@ class WebServer(container: Container) {
                 daoManager.imageWrapper.delete(type, filename)
                 val success= File(imageDir, filename).delete()
 
-                call.respondText("{ \"deleted\": \"$success\" }")
+
+                call.respondText("{ \"deleted\": \"$success\" }", jsonType)
+            }
+
+            get("/img/amount/{type}") {
+                if (!authValidationFails(call)) return@get
+                val type = call.parameters["type"] ?: return@get
+
+                val ls = daoManager.imageWrapper.cache[type].await()
+
+                call.respondText("{ \"amount\": ${ls?.size ?: 0} }", jsonType)
             }
         }
     }
